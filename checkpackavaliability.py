@@ -1,17 +1,18 @@
-import subprocess
-import os
+import subprocess  # Импортируем модуль subprocess для выполнения системных команд.
+import os # Импортируем модуль os для работы с ОС.
 
 def check_package_exists_apt(package_name):
     try:
-        result = subprocess.run(['apt-cache', 'show', package_name], check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        result = subprocess.run(['apt-cache', 'show', package_name], check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE) # стандартный вывод и стандартный вывод ошибок команды будут перенаправлены в каналы, что позволяет получить их содержимое в переменной result
         return True
+    # ловим исключения, которые могут возникнуть, если команда zypper завершится с ненулевым статусом возврата    
     except subprocess.CalledProcessError:
         return False
 
 def check_package_exists_yum(package_name):
     try:
         result = subprocess.run(['yum', 'info', package_name], check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        return True
+        return True 
     except subprocess.CalledProcessError:
         return False
 
@@ -45,14 +46,14 @@ def main():
     elif package_manager == 'zypper':
         check_package_exists = check_package_exists_zypper
 
-    with open('repository.txt', 'r') as file:
+    with open('packagelist.txt', 'r') as file:
         packages = file.readlines()
     
     with open('result.txt', 'w') as result_file:
         for package in packages:
-            package = package.strip()
+            package = package.strip() # Убираем лишние пробелы и символы новой строки.
             if check_package_exists(package):
-                result_file.write(package + '\n')
+                result_file.write(package + '\n') # Записываем имя пакета в файл, если он найден.
 
 if __name__ == "__main__":
     main()
