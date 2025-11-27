@@ -16,6 +16,13 @@ def check_package_exists_yum(package_name):
     except subprocess.CalledProcessError:
         return False
 
+def check_package_exists_dnf(package_name):
+    try:
+        result = subprocess.run(['dnf', 'info', package_name], check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        return True 
+    except subprocess.CalledProcessError:
+        return False
+
 def check_package_exists_zypper(package_name):
     try:
         result = subprocess.run(['zypper', 'info', package_name], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -31,10 +38,12 @@ def detect_package_manager():
         return 'apt'
     elif os.path.exists('/usr/bin/yum'):
         return 'yum'
+    elif os.path.exists('/usr/bin/dnf'):
+        return 'dnf'
     elif os.path.exists('/usr/bin/zypper'):
         return 'zypper'
     else:
-        raise EnvironmentError('Не удалось найти поддерживаемый менеджер пакетов (apt, yum или zypper).')
+        raise EnvironmentError('Не удалось найти поддерживаемый менеджер пакетов (apt, yum, dnf или zypper).')
 
 def main():
     package_manager = detect_package_manager()
@@ -43,6 +52,8 @@ def main():
         check_package_exists = check_package_exists_apt
     elif package_manager == 'yum':
         check_package_exists = check_package_exists_yum
+    elif package_manager == 'dnf':
+        check_package_exists = check_package_exists_dnf
     elif package_manager == 'zypper':
         check_package_exists = check_package_exists_zypper
 
